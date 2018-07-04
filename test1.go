@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/encoding/mvt"
@@ -42,7 +42,6 @@ var (
 	Yellow2 = color.RGBA{0xD6, 0xC5, 0x84, 0xff}
 )
 
-
 func main() {
 
 	// tutoj otevře db
@@ -55,28 +54,28 @@ func main() {
 
 	/*
 
-	// tutoj vypíše metadata
+		// tutoj vypíše metadata
 
-	rows, err := db.Query("select name, value from metadata")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var k string
-		var v string
-		err = rows.Scan(&k, &v)
+		rows, err := db.Query("select name, value from metadata")
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(k, v)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+		defer rows.Close()
+		for rows.Next() {
+			var k string
+			var v string
+			err = rows.Scan(&k, &v)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(k, v)
+		}
+		err = rows.Err()
+		if err != nil {
+			log.Fatal(err)
+		}
 	*/
-	
+
 	// tutoj získá dlaždicu
 
 	// používají se TMS souřadnice
@@ -99,7 +98,6 @@ func main() {
 		log.Fatal(err3)
 	}
 
-
 	// tutoj vykreslí dlaždicu
 
 	resolution := 512.0
@@ -108,7 +106,7 @@ func main() {
 	dc.SetRGB(255, 255, 255)
 	dc.DrawRectangle(0, 0, resolution, resolution)
 	dc.Fill()
-	
+
 	colors := make(map[string]color.Color)
 	colors["water"] = Blue0
 	colors["waterway"] = Blue1
@@ -118,13 +116,13 @@ func main() {
 	colors["landuse"] = Green3
 	colors["landcover"] = White
 
-	// souřadnice pro obrázek se počítají stylem 
+	// souřadnice pro obrázek se počítají stylem
 	// dest = src / extent * resolution
 	//
 	// v dlaždici jsou uloženy i objekty mimo ní
 
 	resolution = float64(resolution)
-	
+
 	for _, layer := range layers {
 
 		tocolor, selected := colors[layer.Name]
@@ -133,18 +131,18 @@ func main() {
 			tocolor = Purple
 		}
 		dc.SetColor(tocolor)
-		
+
 		extent := float64(layer.Extent)
 
 		// fc := geojson.NewFeatureCollection()
-		
+
 		for _, feat := range layer.Features {
 			// fc.Append(feat)
 
 			if geom, ok := feat.Geometry.(orb.Point); ok {
 				// fmt.Println("pt", geom.X(), geom.Y())
 
-				dc.DrawPoint(geom.X() / extent * resolution, geom.Y()  / extent * resolution, 1)
+				dc.DrawPoint(geom.X()/extent*resolution, geom.Y()/extent*resolution, 1)
 			}
 
 			if geom, ok := feat.Geometry.(orb.LineString); ok {
@@ -152,9 +150,9 @@ func main() {
 
 				for _, pt := range geom {
 					// fmt.Println("line", pt.X(), pt.Y())
-					dc.LineTo(pt.X()  / extent * resolution , pt.Y() / extent * resolution)
+					dc.LineTo(pt.X()/extent*resolution, pt.Y()/extent*resolution)
 				}
-				dc.Stroke()				
+				dc.Stroke()
 			}
 
 			if geom, ok := feat.Geometry.(orb.Polygon); ok {
@@ -163,14 +161,14 @@ func main() {
 				for _, ring := range geom {
 					for _, pt := range ring {
 						// fmt.Println("line", pt.X(), pt.Y())
-						dc.LineTo(pt.X()  / extent * resolution , pt.Y() / extent * resolution)
+						dc.LineTo(pt.X()/extent*resolution, pt.Y()/extent*resolution)
 					}
 					dc.NewSubPath()
 				}
-				// dc.Stroke()				
-				
+				// dc.Stroke()
+
 				// Fill zatím ne
-				dc.Fill()				
+				dc.Fill()
 			}
 
 		}
@@ -179,7 +177,7 @@ func main() {
 
 		fmt.Println(layer.Name)
 		// os.Stdout.Write(blob)
-	}	
+	}
 
 	dc.SavePNG("out.png")
 	fmt.Println("OK")
